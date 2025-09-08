@@ -1,62 +1,106 @@
-import React, { useState } from "react";
+// app.js
+const express = require("express");
+const app = express();
+const port = 5000;
 
-function App() {
-  const [tasks, setTasks] = useState([]);   // store tasks
-  const [input, setInput] = useState("");   // store input value
+// Middleware to parse JSON body
+app.use(express.json());
 
-  // Add new task
-  const addTask = () => {
-    if (input.trim() === "") return;
-    setTasks([...tasks, { id: Date.now(), text: input, done: false }]);
-    setInput("");
-  };
+// Sample student data
+let students = [
+  { id: 1, name: "Alice", age: 20 },
+  { id: 2, name: "Bob", age: 22 },
+  { id: 3, name: "Charlie", age: 21 },
+];
 
-  // Toggle done/undone
-  const toggleDone = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, done: !task.done } : task
-      )
-    );
-  };
+// Serve static HTML with JS
+app.get("/", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Student Directory</title>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 5px 0; }
+        input, button { padding: 5px; margin: 5px 0; }
+      </style>
+    </head>
+    <body>
+      <h1>My Student Directory</h1>
+      <ul id="student-list"></ul>
 
-  // Delete task
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
+      <h2>Add Student</h2>
+      <input type="text" id="name" placeholder="Name" />
+      <input type="number" id="age" placeholder="Age" />
+      <button onclick="addStudent()">Add</button>
 
-  return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
-      <h1>📝 To-Do List</h1>
+      <script>
+        // Fetch and display students
+        function fetchStudents() {
+          fetch("/students")
+            .then(res => res.json())
+            .then(data => {
+              const ul = document.getElementById("student-list");
+              ul.innerHTML = "";
+              data.forEach(student => {
+                const li = document.createElement("li");
+                li.textContent = student.name + " - " + student.age + " years";
+                ul.appendChild(li);
+              });
+            })
+            .catch(err => console.error(err));
+        }
 
-      {/* Input & Add Button */}
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter a task"
-      />
-      <button onClick={addTask}>Add</button>
+        // Add new student
+        function addStudent() {
+          const name = document.getElementById("name").value;
+          const age = parseInt(document.getElementById("age").value);
 
-      {/* Task List */}
-      <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <span
-              onClick={() => toggleDone(task.id)}
-              style={{
-                textDecoration: task.done ? "line-through" : "none",
-                cursor: "pointer",
-              }}
-            >
-              {task.text}
-            </span>
-            <button onClick={() => deleteTask(task.id)}>❌</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+          if(!name || !age) {
+            alert("Please enter name and age");
+            return;
+          }
 
-export default App;
+          fetch("/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, age })
+          })
+          .then(res => res.json())
+          .then(data => {
+            fetchStudents(); // Refresh list
+            document.getElementById("name").value = "";
+            document.getElementById("age").value = "";
+          })
+          .catch(err => console.error(err));
+        }
+
+        // Initial fetch
+        fetchStudents();
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// API endpoint: Get students
+app.get("/students", (req, res) => {
+  res.json(students);
+});
+
+// API endpoint: Add student
+app.post("/students", (req, res) => {
+  const { name, age } = req.body;
+  const id = students.length ? students[students.length - 1].id + 1 : 1;
+  const newStudent = { id, name, age };
+  students.push(newStudent);
+  res.json(newStudent);
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
