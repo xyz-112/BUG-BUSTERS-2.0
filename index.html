@@ -1,68 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Live Character Counter</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      padding: 20px;
-    }
-    .container {
-      max-width: 600px;
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-    }
-    textarea { width: 100%; min-height: 120px; }
-    .progress-bar { height: 8px; background: #eee; margin-top: 10px; }
-    .progress { height: 100%; background: linear-gradient(to right,#4facfe,#00f2fe); }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Online Store</title>
 </head>
 <body>
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState } = React;
-
-    function CharacterCounter() {
-      const [text, setText] = useState("");
-      const maxChars = 200;
-
-      const charCount = text.length;
-      const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-      const remainingChars = maxChars - charCount;
-      const progressWidth = (charCount / maxChars) * 100;
-
-      const handleChange = (e) => {
-        if (e.target.value.length <= maxChars) setText(e.target.value);
-      };
-
-      return (
-        <div className="container">
-          <h1>Live Character Counter</h1>
-          <textarea value={text} onChange={handleChange} placeholder="Type here..." />
-          <div className="progress-bar">
-            <div className="progress" style={{ width: progressWidth + "%" }}></div>
-          </div>
-          <p>Characters: {charCount} | Words: {wordCount} | Remaining: {remainingChars}</p>
-          <h3>Preview:</h3>
-          <p>{text || "Your text will appear here..."}</p>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<CharacterCounter />);
-  </script>
+<div id="root"></div>
+<script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
